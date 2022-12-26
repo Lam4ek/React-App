@@ -1,1 +1,1 @@
-My React Test Projects
+Just a project that counts clicks
