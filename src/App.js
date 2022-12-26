@@ -1,24 +1,54 @@
-import React from 'react';
-import './index.scss';
+import React from 'react'
+import Header from './components/Header';
+import Users from './components/Users';
+import AddUser from './components/addUser';
+import axios from 'axios';
 
-function App() {
-	const[open, setOpen] = React.useState(false)
-	return (
-		<div className="App">
-			<button onClick={()=> setOpen(true)} className="open-modal-btn">✨ Открыть окно</button>
-			{
-				open && <div className="overlay">
-					<div className="modal">
-						<svg onClick={() => setOpen(false)} height="200" viewBox="0 0 200 200" width="200">
-							<title />
-							<path d="M114,100l49-49a9.9,9.9,0,0,0-14-14L100,86,51,37A9.9,9.9,0,0,0,37,51l49,49L37,149a9.9,9.9,0,0,0,14,14l49-49,49,49a9.9,9.9,0,0,0,14-14Z" />
-						</svg>
-						<img src="https://media.giphy.com/media/h408T6Y5GfmXBKW62l/giphy.gif" />
-					</div>
-				</div>
-			}
-		</div>
-	);
+const url = "https://reqres.in/api/users?page=1" 
+
+class App extends React.Component {
+	constructor(props) {
+		super(props)
+		axios.get(url).then((res) => {
+			this.setState({users:res.data.data})
+		})
+		this.state = {
+			users: []
+		}
+		this.addUser = this.addUser.bind(this)
+		this.deleteUser = this.deleteUser.bind(this)
+		this.editUser = this.editUser.bind(this)
+	}
+	render() {
+		return (<div>
+			<Header title='a list of users'/>
+			<main>
+				<Users users={this.state.users} onEdit={this.editUser} onDelete={this.deleteUser}/>
+			</main>
+			<aside>
+				<AddUser onAdd={this.addUser}/>
+			</aside>
+		</div>)
+	}
+
+	deleteUser(id){
+		this.setState({
+			users: this.state.users.filter((el)=>el.id !== id)
+		})
+	}
+
+	editUser(user){
+		let allUsers = this.state.users
+		allUsers[user.id - 1] = user
+		this.setState({users: []}, ()=>{
+			this.setState({users: [...allUsers]})
+		})
+	}
+
+	addUser(user){
+		const id = this.state.users.length + 1
+		this.setState({ users:[...this.state.users, {id, ...user}] })
+	}
 }
 
-export default App;
+export default App
